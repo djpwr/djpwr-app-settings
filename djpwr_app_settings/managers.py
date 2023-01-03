@@ -2,21 +2,14 @@ import datetime
 
 from django.db.models import NOT_PROVIDED
 
-from lib.model_managers.managers import QueryBase, ModelQuerySet, ModelManager
-from lib.models import get_manager, get_model
+from djpwr.managers import get_manager, get_model, QuerySet, from_queryset
 
 
-class SettingGroupBase(QueryBase):
+class SettingGroupQuerySet(QuerySet):
     pass
 
 
-class SettingGroupQuerySet(SettingGroupBase, ModelQuerySet):
-    pass
-
-
-class SettingGroupManager(SettingGroupBase, ModelManager):
-    queryset_class = SettingGroupQuerySet
-
+class SettingGroupManager(from_queryset(SettingGroupQuerySet)):
     def create_group(self, group_name):
         setting_group, _ = self.get_or_create(group_name=group_name)
 
@@ -31,15 +24,11 @@ class SettingGroupManager(SettingGroupBase, ModelManager):
         ).update(last_modified=now)
 
 
-class ApplicationSettingBase(QueryBase):
+class ApplicationSettingQuerySet(QuerySet):
     pass
 
 
-class ApplicationSettingQuerySet(ApplicationSettingBase, ModelQuerySet):
-    pass
-
-
-class ApplicationSettingManager(ApplicationSettingBase, ModelManager):
+class ApplicationSettingManager(from_queryset(ApplicationSettingQuerySet)):
     queryset_class = ApplicationSettingQuerySet
 
     def create_for_group(self, setting_group):

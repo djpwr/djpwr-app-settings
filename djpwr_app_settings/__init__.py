@@ -1,4 +1,4 @@
-from lib.models import get_model, get_manager
+from djpwr.managers import get_model, get_manager
 
 default_app_config = 'djpwr.app_settings.apps.AppConfig'
 
