@@ -1,4 +1,3 @@
-import datetime
 from functools import update_wrapper
 
 from django.contrib import admin
