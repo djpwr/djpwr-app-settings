@@ -10,7 +10,7 @@ from django.db import transaction, router
 from django.forms import all_valid
 from django.utils.translation import ugettext_lazy as _
 
-from lib.models import get_manager
+from djpwr.managers import get_manager
 
 from . import models, APP_SETTINGS
 
