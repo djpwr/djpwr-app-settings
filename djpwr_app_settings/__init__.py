@@ -7,7 +7,7 @@ class AppSettingDict:
     def __getitem__(self, setting_label):
         app_label, model_name, setting_name = setting_label.split('.')
 
-        setting = get_manager('app_Settings.ApplicationSetting').get(
+        setting = get_manager('app_settings.ApplicationSetting').get(
             group__group_name='.'.join([app_label, model_name]),
             name=setting_name
         )
@@ -19,14 +19,14 @@ class AppSettingDict:
 
         setting_group = get_model('.'.join([app_label, model_name]))
 
-        setting = get_manager('app_Settings.ApplicationSetting').get(
+        setting = get_manager('app_settings.ApplicationSetting').get(
             group__group_name='.'.join([app_label, model_name]),
             name=setting_name
         )
-        setting.value = value()
+        setting.value = value
         setting.save()
 
-        get_manager('app_Settings.SettingGroup').touch_last_modified(setting_group)
+        get_manager('app_settings.SettingGroup').touch_last_modified(setting_group)
 
 
 app_settings = AppSettingDict()
