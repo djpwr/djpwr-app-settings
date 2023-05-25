@@ -26,7 +26,7 @@ class AppSettingDict:
         setting.value = value
         setting.save()
 
-        get_manager('app_settings.SettingGroup').touch_last_modified(setting)
+        get_manager('app_settings.SettingGroup').touch_last_modified(setting.group)
 
 
 app_settings = AppSettingDict()
