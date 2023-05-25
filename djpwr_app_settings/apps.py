@@ -5,7 +5,7 @@ from djpwr.managers import get_model, get_manager
 
 
 class AppConfig(BaseAppConfig):
-    name = 'djpwr.app_settings'
+    name = 'djpwr_app_settings'
     label = 'app_settings'
     verbose_name = _("Application settings")
 
