@@ -8,8 +8,12 @@ from django.contrib.auth.admin import csrf_protect_m
 from django.core.exceptions import PermissionDenied
 from django.db import transaction, router
 from django.forms import all_valid
-from django.utils.translation import ugettext_lazy as _
 
+try:
+    from django.utils.translation import gettext_lazy as _
+except:
+    from django.utils.translation import ugettext_lazy as _
+    
 from djpwr.managers import get_manager
 
 from . import models, APP_SETTINGS
