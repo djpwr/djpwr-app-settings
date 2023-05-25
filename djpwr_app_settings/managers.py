@@ -15,11 +15,11 @@ class SettingGroupManager(from_queryset(SettingGroupQuerySet)):
 
         return setting_group
 
-    def touch_last_modified(self, setting_group):
+    def touch_last_modified(self, setting):
         now = datetime.datetime.now()
 
         self.filter(
-            id=setting_group.id,
+            id=setting.id,
             last_modified__lte=now
         ).update(last_modified=now)
 
