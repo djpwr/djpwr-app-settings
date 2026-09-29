@@ -86,7 +86,7 @@ class SettingGroupAdmin(admin.ModelAdmin):
             form = ModelForm(request.POST, request.FILES, instance=obj)
             form_validated = form.is_valid()
             if form_validated:
-                new_object = self.save_form(request, form)
+                new_object = self.save_form(request, form, change=True)
             else:
                 new_object = form.instance
 
