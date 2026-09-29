@@ -8,5 +8,6 @@ setup(
     author="Ruud de Klerk",
     author_email="ruud@codeveloped.nl",
     url='https://github.com/djpwr/djpwr-app-settings',
-    packages=find_packages()
+    packages=find_packages(),
+    include_package_data=True,
 )
