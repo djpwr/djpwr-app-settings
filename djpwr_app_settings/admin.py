@@ -9,6 +9,7 @@ from django.core.exceptions import PermissionDenied
 from django.db import router, transaction
 from django.db.models.fields.files import FileField
 from django.forms import all_valid
+from django.urls import reverse
 
 try:
     from django.utils.translation import gettext_lazy as _
@@ -23,6 +24,7 @@ from . import APP_SETTINGS, models
 class SettingGroupAdmin(admin.ModelAdmin):
     readonly_fields = ["last_modified"]
     exclude = ["group_name"]
+    change_form_template = 'djpwr_app_settings/change_form.html'
 
     def get_urls(self):
         from django.urls import path
@@ -149,6 +151,9 @@ class SettingGroupAdmin(admin.ModelAdmin):
             title = _("Change %s")
         else:
             title = _("View %s")
+
+        app_label, model_name = self.model._meta.app_label, self.model._meta.model_name
+
         context = {
             **self.admin_site.each_context(request),
             "title": title % opts.verbose_name,
@@ -158,7 +163,9 @@ class SettingGroupAdmin(admin.ModelAdmin):
             "media": media,
             "inline_admin_formsets": inline_formsets,
             "errors": helpers.AdminErrorList(form, formsets),
-            "preserved_filters": self.get_preserved_filters(request),
+            "history_url": reverse(
+                f'{self.admin_site.name}:{app_label}_{model_name}_history'
+            ),
         }
 
         context.update(extra_context or {})
