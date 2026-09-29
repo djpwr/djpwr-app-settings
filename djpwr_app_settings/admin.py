@@ -39,13 +39,13 @@ class SettingGroupAdmin(admin.ModelAdmin):
         info = self.model._meta.app_label, self.model._meta.model_name
 
         urlpatterns = [
-            path("", wrap(self.change_view), name="%s_%s_change" % info),
+            path("<int:object_id>/", wrap(self.change_view), name="%s_%s_change" % info),
             path("", wrap(self.change_view), name="%s_%s_changelist" % info),
             path("history/", wrap(self.history_view), name="%s_%s_history" % info),
         ]
         return urlpatterns
 
-    def change_view(self, request, form_url="", extra_context=None):
+    def change_view(self, request, object_id=None, form_url="", extra_context=None):
         return self.changeform_view(request, form_url, extra_context)
 
     @csrf_protect_m
