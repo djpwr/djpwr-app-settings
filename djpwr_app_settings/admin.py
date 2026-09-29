@@ -20,13 +20,6 @@ from djpwr.managers import get_manager
 from . import APP_SETTINGS, models
 
 
-class ApplicationSettingAdmin(admin.ModelAdmin):
-    list_display = ["group_name", "name"]
-
-
-admin.site.register(models.ApplicationSetting, ApplicationSettingAdmin)
-
-
 class SettingGroupAdmin(admin.ModelAdmin):
     readonly_fields = ["last_modified"]
     exclude = ["group_name"]
@@ -78,8 +71,7 @@ class SettingGroupAdmin(admin.ModelAdmin):
             if not self.has_view_or_change_permission(request, obj):
                 raise PermissionDenied
 
-        add = False
-        ModelForm = self.get_form(request, obj, change=not add)
+        ModelForm = self.get_form(request, obj, change=True)
 
         if request.method == "POST":
             # 1) hydrate obj from stored settings, so FileField has its old value
@@ -91,25 +83,22 @@ class SettingGroupAdmin(admin.ModelAdmin):
             form = ModelForm(request.POST, request.FILES, instance=obj)
             form_validated = form.is_valid()
             if form_validated:
-                new_object = self.save_form(request, form, change=not add)
+                new_object = self.save_form(request, form)
             else:
                 new_object = form.instance
 
             formsets, inline_instances = self._create_formsets(
-                request, new_object, change=not add
+                request, new_object, change=True
             )
             if all_valid(formsets) and form_validated:
-                self.save_model(request, new_object, form, not add)
-                self.save_related(request, form, formsets, not add)
+                self.save_model(request, new_object, form)
+                self.save_related(request, form, formsets, True)
                 change_message = self.construct_change_message(
-                    request, form, formsets, add
+                    request, form, formsets
                 )
-                if add:
-                    self.log_addition(request, new_object, change_message)
-                    return self.response_add(request, new_object)
-                else:
-                    self.log_change(request, new_object, change_message)
-                    return self.response_change(request, new_object)
+
+                self.log_change(request, new_object, change_message)
+                return self.response_change(request, new_object)
             else:
                 form_validated = False
         else:
@@ -127,20 +116,21 @@ class SettingGroupAdmin(admin.ModelAdmin):
 
             form = ModelForm(instance=obj, initial=initial)
             formsets, inline_instances = self._create_formsets(
-                request, form.instance, change=not add
+                request, form.instance, change=True
             )
 
-        if not add and not self.has_change_permission(request, obj):
+        if not self.has_change_permission(request, obj):
             readonly_fields = flatten_fieldsets(self.get_fieldsets(request, obj))
         else:
             readonly_fields = self.get_readonly_fields(request, obj)
+
         adminForm = helpers.AdminForm(
             form,
             list(self.get_fieldsets(request, obj)),
             # Clear prepopulated fields on a view-only form to avoid a crash.
             (
                 self.get_prepopulated_fields(request, obj)
-                if add or self.has_change_permission(request, obj)
+                if self.has_change_permission(request, obj)
                 else {}
             ),
             readonly_fields,
@@ -154,9 +144,7 @@ class SettingGroupAdmin(admin.ModelAdmin):
         for inline_formset in inline_formsets:
             media = media + inline_formset.media
 
-        if add:
-            title = _("Add %s")
-        elif self.has_change_permission(request, obj):
+        if self.has_change_permission(request, obj):
             title = _("Change %s")
         else:
             title = _("View %s")
@@ -172,22 +160,10 @@ class SettingGroupAdmin(admin.ModelAdmin):
             "preserved_filters": self.get_preserved_filters(request),
         }
 
-        # Hide the "Save" and "Save and continue" buttons if "Save as New" was
-        # previously chosen to prevent the interface from getting confusing.
-        if (
-            request.method == "POST"
-            and not form_validated
-            and "_saveasnew" in request.POST
-        ):
-            context["show_save"] = False
-            context["show_save_and_continue"] = False
-            # Use the change template instead of the add template.
-            add = False
-
         context.update(extra_context or {})
 
         return self.render_change_form(
-            request, context, add=add, change=not add, obj=obj, form_url=form_url
+            request, context, add=False, change=True, obj=obj, form_url=form_url
         )
 
     def get_changeform_initial_data(self, request):
@@ -199,7 +175,7 @@ class SettingGroupAdmin(admin.ModelAdmin):
 
         return dict(settings)
 
-    def save_model(self, request, obj, form, change):
+    def save_model(self, request, obj, form, change=True):
         group_name = obj.name_from_class()
 
         for field_name, value in form.cleaned_data.items():
@@ -226,5 +202,5 @@ class SettingGroupAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         return False
 
-
-admin.site.register(models.SettingGroup, SettingGroupAdmin)
+    def has_delete_permission(self, request, obj=None):
+        return False
