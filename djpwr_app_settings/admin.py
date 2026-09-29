@@ -68,6 +68,9 @@ class SettingGroupAdmin(admin.ModelAdmin):
 
         return obj
 
+    def history_view(self, request, extra_context=None):
+        return super().history_view(request, '1')
+
     def _changeform_view(self, request, object_id, form_url, extra_context):
         model = self.model
         opts = model._meta
