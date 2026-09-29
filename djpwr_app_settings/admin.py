@@ -53,6 +53,21 @@ class SettingGroupAdmin(admin.ModelAdmin):
         with transaction.atomic(using=router.db_for_write(self.model)):
             return self._changeform_view(request, object_id, form_url, extra_context)
 
+    def get_object(self, request, object_id=None):
+        model = self.model
+
+        setting_group = get_manager("app_settings.SettingGroup").get(
+            group_name=model.name_from_class()
+        )
+
+        obj = model(
+            pk=setting_group.pk,
+            group_name=setting_group.group_name,
+            last_modified=setting_group.last_modified,
+        )
+
+        return obj
+
     def _changeform_view(self, request, object_id, form_url, extra_context):
         model = self.model
         opts = model._meta
