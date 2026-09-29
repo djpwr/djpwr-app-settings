@@ -39,6 +39,7 @@ class SettingGroupAdmin(admin.ModelAdmin):
         urlpatterns = [
             path("", wrap(self.change_view), name="%s_%s_change" % info),
             path("", wrap(self.change_view), name="%s_%s_changelist" % info),
+            path("history/", wrap(self.history_view), name="%s_%s_history" % info),
         ]
         return urlpatterns
 
